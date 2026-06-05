@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechStore — Gestión de Productos</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Tech<strong>Store</strong></span>
+      </div>
+      <button class="btn-primary" id="btnAbrirModal">
+        <span>+</span> Agregar Producto
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO / STATS -->
+  <section class="stats-section">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon stat-blue">📦</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statTotal">0</span>
+            <span class="stat-label">Productos</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-purple">🏷️</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statCategorias">0</span>
+            <span class="stat-label">Categorías</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-green">💰</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statPromedio">$0</span>
+            <span class="stat-label">Precio Promedio</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon stat-orange">🔝</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statMax">$0</span>
+            <span class="stat-label">Precio Máximo</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD DE ESTADÍSTICAS -->
+  <section class="dashboard-section" id="dashboardSection">
+    <div class="container">
+
+      <!-- Encabezado del dashboard -->
+      <div class="dash-header">
+        <div class="dash-title-group">
+          <h2 class="dash-title">Dashboard de Estadísticas</h2>
+          <p class="dash-subtitle">Análisis en tiempo real del inventario de productos</p>
+        </div>
+        <span class="dash-live-badge">En vivo</span>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-blue">
+          <span class="kpi-icon">📦</span>
+          <span class="kpi-value" id="kpiTotalVal">0</span>
+          <span class="kpi-label">Total de Productos</span>
+        </div>
+        <div class="kpi-card kpi-purple">
+          <span class="kpi-icon">🏷️</span>
+          <span class="kpi-value" id="kpiCategoriasVal">0</span>
+          <span class="kpi-label">Categorías</span>
+        </div>
+        <div class="kpi-card kpi-green">
+          <span class="kpi-icon">💰</span>
+          <span class="kpi-value" id="kpiPromedioVal">$0</span>
+          <span class="kpi-label">Precio Promedio</span>
+        </div>
+        <div class="kpi-card kpi-orange">
+          <span class="kpi-icon">🔝</span>
+          <span class="kpi-value" id="kpiMasCaroVal">$0</span>
+          <span class="kpi-label">Producto más Caro</span>
+          <span class="kpi-sub" id="kpiMasCaroSub">—</span>
+        </div>
+        <div class="kpi-card kpi-teal">
+          <span class="kpi-icon">💎</span>
+          <span class="kpi-value" id="kpiMasBaratoVal">$0</span>
+          <span class="kpi-label">Producto más Barato</span>
+          <span class="kpi-sub" id="kpiMasBaratoSub">—</span>
+        </div>
+      </div>
+
+      <!-- Gráficas 2×2 -->
+      <div class="charts-grid">
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-icon-badge chart-badge-blue">📊</span>
+            <div>
+              <h3 class="chart-title">Productos por Categoría</h3>
+              <p class="chart-desc">Cantidad de artículos en cada segmento</p>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartBarCategorias"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-icon-badge chart-badge-purple">🥧</span>
+            <div>
+              <h3 class="chart-title">Distribución por Categoría</h3>
+              <p class="chart-desc">Porcentaje del total de productos</p>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartPie"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-icon-badge chart-badge-orange">💸</span>
+            <div>
+              <h3 class="chart-title">Productos más Caros</h3>
+              <p class="chart-desc">Top 8 por precio en MXN</p>
+            </div>
+          </div>
+          <div class="chart-wrapper chart-wrapper-tall">
+            <canvas id="chartHBarPrecios"></canvas>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <span class="chart-icon-badge chart-badge-green">📈</span>
+            <div>
+              <h3 class="chart-title">Precio Promedio por Categoría</h3>
+              <p class="chart-desc">Comparativa de rangos de precio</p>
+            </div>
+          </div>
+          <div class="chart-wrapper">
+            <canvas id="chartPromedios"></canvas>
+          </div>
+        </div>
+
+      </div><!-- /charts-grid -->
+    </div>
+  </section>
+
+  <!-- FILTROS -->
+  <section class="filters-section">
+    <div class="container">
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="inputBuscar" class="search-input" placeholder="Buscar por nombre o categoría…" />
+          <button class="search-clear" id="btnLimpiarBuscar" title="Limpiar">✕</button>
+        </div>
+        <div class="category-tabs" id="categoryTabs">
+          <button class="cat-btn active" data-cat="Todos">Todos</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTOS -->
+  <main class="main-content">
+    <div class="container">
+      <div class="results-info" id="resultsInfo"></div>
+      <div class="products-grid" id="productsGrid">
+        <!-- Cards generadas por JS -->
+      </div>
+      <div class="empty-state hidden" id="emptyState">
+        <div class="empty-icon">🔎</div>
+        <p class="empty-title">Sin resultados</p>
+        <p class="empty-sub">Intenta con otro filtro o agrega un nuevo producto.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL AGREGAR PRODUCTO -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Nuevo Producto</h2>
+        <button class="modal-close" id="btnCerrarModal" title="Cerrar">✕</button>
+      </div>
+      <form class="modal-form" id="formProducto" novalidate>
+        <div class="form-group">
+          <label for="inputNombre">Nombre del producto</label>
+          <input type="text" id="inputNombre" name="nombre" placeholder="Ej. Laptop Dell XPS 15" required />
+          <span class="field-error" id="errNombre"></span>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="inputPrecio">Precio (MXN)</label>
+            <div class="input-prefix-wrap">
+              <span class="input-prefix">$</span>
+              <input type="number" id="inputPrecio" name="precio" placeholder="0.00" min="1" step="0.01" required />
+            </div>
+            <span class="field-error" id="errPrecio"></span>
+          </div>
+          <div class="form-group">
+            <label for="inputCategoria">Categoría</label>
+            <input type="text" id="inputCategoria" name="categoria" placeholder="Ej. Laptops" list="categoriasDatalist" required />
+            <datalist id="categoriasDatalist"></datalist>
+            <span class="field-error" id="errCategoria"></span>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn-secondary" id="btnCancelar">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar Producto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/analytics.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
