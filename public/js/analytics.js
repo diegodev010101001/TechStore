@@ -1,11 +1,13 @@
 // analytics.js — Dashboard de Estadísticas
 // Lógica de gráficas aislada; depende de Chart.js (cargado antes en index.html)
 
+// Variable donde guardamos un catálogo de colores bonitos para pintar los pedazos de las gráficas.
 const PALETTE = [
   '#2563eb', '#7c3aed', '#10b981', '#f59e0b',
   '#ef4444', '#06b6d4', '#f97316', '#8b5cf6'
 ];
 
+// Objeto para guardar la estructura básica que llevarán todas nuestras gráficas (cómo se ven, si son responsivas y cómo es la letra).
 const CHART_DEFAULTS = {
   responsive: true,
   maintainAspectRatio: false,
@@ -40,10 +42,12 @@ const SCALE_Y_PRICE = {
   grid: { color: '#f1f5f9' }
 };
 
+// Guardaremos las gráficas reales aquí adentro, para poder borrarlas y redibujarlas después.
 const _charts = {};
 
+// Esta función simplemente crea "el lienzo en blanco" de nuestras 4 gráficas en el HTML, pero no les pone datos todavía.
 function initCharts() {
-  // Gráfica 1: Barras — Cantidad de productos por categoría
+  // Inicializamos la gráfica 1: Tipo barra vertical para categorías.
   _charts.barCat = new Chart(
     document.getElementById('chartBarCategorias'),
     {
@@ -66,7 +70,7 @@ function initCharts() {
     }
   );
 
-  // Gráfica 2: Pastel (doughnut) — Porcentaje por categoría
+  // Inicializamos la gráfica 2: Tipo Dona (pastel con hueco) para los porcentajes.
   _charts.pie = new Chart(
     document.getElementById('chartPie'),
     {
@@ -105,7 +109,7 @@ function initCharts() {
     }
   );
 
-  // Gráfica 3: Barras horizontales — Productos más caros
+  // Inicializamos la gráfica 3: Tipo barra horizontal para el ranking de precios.
   _charts.hbar = new Chart(
     document.getElementById('chartHBarPrecios'),
     {
@@ -147,7 +151,7 @@ function initCharts() {
     }
   );
 
-  // Gráfica 4: Barras — Precio promedio por categoría
+  // Inicializamos la gráfica 4: Tipo barra vertical para promedios de precios.
   _charts.avgCat = new Chart(
     document.getElementById('chartPromedios'),
     {
@@ -180,9 +184,13 @@ function initCharts() {
   );
 }
 
+// Esta es la función principal que toma todos nuestros productos y llena las gráficas de información matemática.
 function renderDashboard(productos) {
+  // Si por alguna razón nos quedamos sin ningún producto, blanqueamos todo (limpiamos las gráficas).
   if (!productos || productos.length === 0) {
+    // Limpia los números...
     _updateKPIs({});
+    // Limpia y actualiza gráficas borrándole los datos...
     Object.values(_charts).forEach(c => {
       c.data.labels = [];
       c.data.datasets[0].data = [];
@@ -191,21 +199,28 @@ function renderDashboard(productos) {
     return;
   }
 
-  // Agrupación por categoría
+  // Agrupación por categoría. Aquí creamos "cubetas" separadas para cada categoría y vamos sumando sus productos.
   const byCategory = {};
   productos.forEach(p => {
+    // Si la cubeta de la categoría no existe, la creamos con conteo 0 y precio total 0.
     if (!byCategory[p.categoria]) byCategory[p.categoria] = { count: 0, total: 0 };
+    // Por cada producto, le sumamos 1 a la cuenta y acumulamos su precio.
     byCategory[p.categoria].count++;
     byCategory[p.categoria].total += p.precio;
   });
 
+  // Obtenemos una lista simple de los nombres de categorías (ej. "Laptops", "Monitores").
   const catNames = Object.keys(byCategory);
+  // Obtenemos listas separadas de los conteos y los promedios.
   const catCounts = catNames.map(c => byCategory[c].count);
   const catAvgs   = catNames.map(c => Math.round(byCategory[c].total / byCategory[c].count));
 
+  // Duplicamos el arreglo y lo ordenamos de Mayor a Menor precio usando 'sort'.
   const sorted    = [...productos].sort((a, b) => b.precio - a.precio);
+  // 'slice(0,8)' corta ese arreglo ordenado para quedarnos únicamente con el "Top 8" de más caros.
   const topN      = sorted.slice(0, 8);
 
+  // Pasamos todos los datos (el más caro [posición 0], más barato [posición final], y promedios) a los cajones superiores del Dashboard.
   // KPIs
   _updateKPIs({
     total:     productos.length,
@@ -215,13 +230,14 @@ function renderDashboard(productos) {
     masBarato: sorted[sorted.length - 1]
   });
 
+  // Finalmente, le decimos a cada gráfica que se dibuje con los nuevos datos organizados.
   // Gráfica 1 — Barras categorías
   _setChart(_charts.barCat, catNames, catCounts);
 
   // Gráfica 2 — Pastel
   _setChart(_charts.pie, catNames, catCounts);
 
-  // Gráfica 3 — Horizontal más caros
+  // Para la gráfica de barras horizontales que muestra nombres largos, hacemos un pequeño corte ("...") a los textos para que quepan en pantalla si miden más de 24 letras.
   const hLabels = topN.map(p => p.nombre.length > 24 ? p.nombre.slice(0, 22) + '…' : p.nombre);
   _setChart(_charts.hbar, hLabels, topN.map(p => p.precio));
 
@@ -229,11 +245,12 @@ function renderDashboard(productos) {
   _setChart(_charts.avgCat, catNames, catAvgs);
 }
 
+// Una pequeña función "ayudante" que automatiza inyectar la información y los colores bonitos a cualquier gráfica que le mandemos.
 function _setChart(chart, labels, data) {
   chart.data.labels = labels;
   chart.data.datasets[0].data = data;
   chart.data.datasets[0].backgroundColor = labels.map((_, i) => PALETTE[i % PALETTE.length]);
-  chart.update();
+  chart.update(); // Dispara la animación de dibujo en la página.
 }
 
 function _updateKPIs({ total, categorias, promedio, masCaro, masBarato } = {}) {

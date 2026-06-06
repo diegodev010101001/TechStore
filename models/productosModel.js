@@ -1,4 +1,6 @@
+// Creamos una variable llamada 'productos' que es una "lista" (Array) que funciona como nuestra base de datos en memoria.
 let productos = [
+  // Cada elemento entre { } es un producto. Tiene un número único (id), un nombre, un precio y su categoría.
   { id: 1,  nombre: "Laptop Dell XPS 15",               precio: 28999, categoria: "Laptops"        },
   { id: 2,  nombre: "MacBook Air M3",                    precio: 32999, categoria: "Laptops"        },
   { id: 3,  nombre: "iPhone 15 Pro",                     precio: 22999, categoria: "Smartphones"    },
@@ -57,23 +59,36 @@ let productos = [
   { id: 50, nombre: "Disco Externo LaCie Rugged 1TB",   precio: 1499,  categoria: "Almacenamiento" },
 ];
 
+// Creamos una variable 'nextId' que inicia en 51. Nos servirá para saber qué número darle al próximo producto nuevo que agreguemos.
 let nextId = 51;
 
+// Función para devolver la lista completa de productos tal y como está.
 const getAll = () => productos;
 
+// Función que busca un producto por su ID. Convierte el ID a número entero (parseInt) y busca en la lista si hay alguno que coincida.
 const getById = (id) => productos.find(p => p.id === parseInt(id));
 
+// Función para crear y guardar un producto nuevo en nuestra lista.
 const create = ({ nombre, precio, categoria }) => {
+  // Armamos el "paquete" del nuevo producto. Le asignamos el 'nextId', aumentamos 'nextId' en 1 para la próxima vez (nextId++), y guardamos el resto.
   const nuevo = { id: nextId++, nombre, precio: parseFloat(precio), categoria };
+  // Agregamos este paquete nuevo al final de nuestra lista de productos con el método push.
   productos.push(nuevo);
+  // Devolvemos el producto recién creado para que el controlador pueda verlo.
   return nuevo;
 };
 
+// Función para borrar un producto de la lista.
 const remove = (id) => {
+  // Buscamos en qué posición (índice) de la lista se encuentra el producto que tiene ese ID.
   const index = productos.findIndex(p => p.id === parseInt(id));
+  // Si nos devuelve -1, significa que no lo encontró en la lista. Devolvemos "nulo" (nada).
   if (index === -1) return null;
+  // Si lo encontró, usamos '.splice' para recortar y sacar exactamente ese 1 elemento de la lista.
   const [eliminado] = productos.splice(index, 1);
+  // Devolvemos el elemento que acabamos de sacar para indicar cuál se borró.
   return eliminado;
 };
 
+// Hacemos públicas las 4 funciones para que el archivo del controlador las pueda utilizar.
 module.exports = { getAll, getById, create, remove };
